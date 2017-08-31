@@ -12,7 +12,7 @@ setup(
     ),
     author='Aravind',
     author_email='arvindxxxx@gmail.com',
-    url='https://github.com/arvinds-ds/stan_code_helper.git,
+    url='https://github.com/arvinds-ds/stan_code_helper.git',
     license='BSD',
     long_description="""
 Jupyter notebook extension that enables highlighting of all instances of the
