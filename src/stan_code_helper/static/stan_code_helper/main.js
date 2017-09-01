@@ -71,10 +71,8 @@ define(function (require, exports, module) {
 	 *  current editor, or multiple cells' editors.
 	 */
 	function highlightMatchesInAllRelevantCells (cm) {
-		console.log('High;ight');
 		get_relevant_cells().forEach(function (cell, idx, array) {
 					cell.code_mirror.setOption('mode', 'text/x-stan');
-					cell.code_mirror.setOption('lineNumbers', true);
 				});
 
     }
@@ -102,8 +100,6 @@ define(function (require, exports, module) {
             console.warn('[stan]', 'error loading config:', reason);
         })
         .then(function () {
-            // Change default for new cells
-            CodeCell.options_default.cm_config.lineNumbers = false;
             // Apply to any already-existing cells
             var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
                 if ( cell instanceof CodeCell) {

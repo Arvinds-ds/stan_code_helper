@@ -7,22 +7,31 @@ setup(
     name='stan_code_helper',
     version='0.0.1',
     description=(
-        'Jupyter notebook extension that enables highlighting every instance '
-        'of the current word in the notebook.'
+        'Jupyter notebook extension that enables syntax highlighting of %%stan code cells'
     ),
     author='Aravind',
     author_email='arvindxxxx@gmail.com',
     url='https://github.com/arvinds-ds/stan_code_helper.git',
-    license='BSD',
+    license='MIT',
     long_description="""
-Jupyter notebook extension that enables highlighting of all instances of the
-currently-selected or cursor-adjecent word in either the current cell's editor,
-or in the whole notebook.
-Based on the  CodeMirror addon
-`Match Highlighter <https://codemirror.net/demo/matchhighlighter.html>`_,
-extended to work across multiple editors.
+Jupyter notebook extension that enables highlighting of all %%stan code cells,
 """,
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
+    install_requires=(
+        'ipython',
+    ),
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Framework :: IPython',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ]
 )
