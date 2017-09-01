@@ -16,9 +16,68 @@ define(function (require, exports, module) {
 	var CodeMirror = require('codemirror/lib/codemirror');
 
 	require('codemirror/addon/selection/mark-selection');
-	require(['./stan']);
+	var stan = require(['./stan']);
     //require('codemirror/addon/selection/anyword-hint');
+    //require('codemirror/addon/selection/show-hint');
 
+	var globalState = {
+		active: false,
+		timeout: null, // only want one timeout
+		overlay: null, // one overlay suffices, as all cells use the same one
+	};
+
+	// define a CodeMirror option for highlighting matches in all cells
+	CodeMirror.defineOption("syntaxhighlight", false, function (cm, val, old) {
+		if (old && old != CodeMirror.Init) {
+			globalState.active = false;
+			clearTimeout(globalState.timeout);
+			globalState.timeout = null;
+			cm.off("cursorActivity", callbackCursorActivity);
+			cm.off("focus", callbackOnFocus);
+		}
+		if (val) {
+			if (cm.hasFocus()) {
+				globalState.active = true;
+				highlightMatchesInAllRelevantCells(cm);
+			}
+			else {
+				cm.on("focus", callbackOnFocus);
+			}
+			cm.on("cursorActivity", callbackCursorActivity);
+		}
+	});
+
+		function callbackCursorActivity (cm) {
+		//if (globalState.active || cm.hasFocus()) {
+			scheduleHighlight(cm);
+		//}
+	}
+
+	function callbackOnFocus (cm) {
+		// unlike cm match-highlighter, we *do* want to schedule a highight on
+		// focussing the editor
+		globalState.active = true;
+		scheduleHighlight(cm);
+	}
+
+	function scheduleHighlight (cm) {
+		//clearTimeout(globalState.timeout);
+		globalState.timeout = setTimeout(function () { highlightMatchesInAllRelevantCells(cm); }, 10);
+	}
+
+	/**
+	 *  Adapted from cm match-highlighter's highlightMatches, but adapted to
+	 *  use our global state and parameters, plus work either for only the
+	 *  current editor, or multiple cells' editors.
+	 */
+	function highlightMatchesInAllRelevantCells (cm) {
+		console.log('High;ight');
+		get_relevant_cells().forEach(function (cell, idx, array) {
+					cell.code_mirror.setOption('mode', 'text/x-stan');
+					cell.code_mirror.setOption('lineNumbers', true);
+				});
+
+    }
 
 	function get_relevant_cells () {
 		var cells = Jupyter.notebook.get_cells();
@@ -32,8 +91,29 @@ define(function (require, exports, module) {
 		return relevant_cells;
 	}
 
+	function update_options () {
+
+    }
+
 	function load_extension () {
 		console.log("I have been loaded..")
+		Jupyter.notebook.config.loaded
+        .then(update_options, function on_error (reason) {
+            console.warn('[stan]', 'error loading config:', reason);
+        })
+        .then(function () {
+            // Change default for new cells
+            CodeCell.options_default.cm_config.lineNumbers = false;
+            // Apply to any already-existing cells
+            var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
+                if ( cell instanceof CodeCell) {
+                    cell.code_mirror.setOption('syntaxhighlight', true);
+                }
+            });
+        })
+        .catch(function on_error (reason) {
+            console.warn('[stan]', 'error:', reason);
+        });
 
 
 	}

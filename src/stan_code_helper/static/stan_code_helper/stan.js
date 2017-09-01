@@ -3,9 +3,9 @@
 
 (function (mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("codemirror/lib/codemirror"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["codemirror/lib/codemirror"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -454,6 +454,6 @@
     modeProps: {fold: ["brace", "include"]}
   });
 
-CodeMirror.defineMIME("text/x-stan", {name: "Stan", mime: "text/x-stan", mode: "stan", ext: [".stan"]});
+
 
 });
