@@ -5,6 +5,12 @@ A jupyter nbextension for syntax highlighting of %%stan magic code cells (during
 
 ![Image](stan_code_helper.png)
 
+Required
+--------
+
+Ensure stanmagic is installed via
+
+`$ pip install git+https://github.com/Arvinds-ds/stanmagic.git`
 
 Install Extension
 ---------------------
