@@ -1,10 +1,16 @@
 Stan_code_helper
 -----------------
 
-A jupyter nbextension for syntax highlighting of %%stan magic code cells (during edit)
+A jupyter nbextension for syntax highlighting of %%stan magic code cells (during edit). This package requires the stanmagic package to work (https://github.com/arvinds-ds/stanmagic)
 
 ![Image](stan_code_helper.png)
 
+Required
+--------
+
+Ensure stanmagic is installed via
+
+`$ pip install git+https://github.com/Arvinds-ds/stanmagic.git`
 
 Install Extension
 ---------------------
