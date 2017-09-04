@@ -8,6 +8,12 @@
 define(function (require, exports, module) {
 	'use strict';
 
+    var themes = {
+      "Default": null,
+      "stan": "./stan.css",
+    };
+
+
 	var $ = require('jquery');
 	var Jupyter = require('base/js/namespace');
 	var Cell = require('notebook/js/cell').Cell;
@@ -32,37 +38,50 @@ define(function (require, exports, module) {
 			globalState.active = false;
 			clearTimeout(globalState.timeout);
 			globalState.timeout = null;
+			m.off("focus", callbackOnFocus);
+			cm.off("blur", callbackOnBlur);
+			cm.off("viewportChange", callbackViewportChange);
+			cm.off("change", callbackOnChange);
 			cm.off("cursorActivity", callbackCursorActivity);
-			cm.off("focus", callbackOnFocus);
 		}
 		if (val) {
-			if (cm.hasFocus()) {
-				globalState.active = true;
-				highlightMatchesInAllRelevantCells(cm);
-			}
-			else {
-				cm.on("focus", callbackOnFocus);
-			}
+
+			cm.on("focus", callbackOnFocus);
+			cm.on("blur", callbackOnBlur);
+			cm.on("viewportChange", callbackViewportChange);
+			cm.on("change", callbackOnChange);
 			cm.on("cursorActivity", callbackCursorActivity);
+
 		}
 	});
 
-		function callbackCursorActivity (cm) {
-		//if (globalState.active || cm.hasFocus()) {
-			scheduleHighlight(cm);
-		//}
+
+	function callbackOnChange (cm) {
+		scheduleHighlight(cm);
+
 	}
 
+	function callbackCursorActivity (cm) {
+		scheduleHighlight(cm);
+
+	}
+
+	function callbackViewportChange (cm) {
+		scheduleHighlight(cm);
+
+	}
 	function callbackOnFocus (cm) {
-		// unlike cm match-highlighter, we *do* want to schedule a highight on
-		// focussing the editor
-		globalState.active = true;
 		scheduleHighlight(cm);
 	}
 
+	function callbackOnBlur (cm) {
+		scheduleHighlight(cm);
+	}
+
+
 	function scheduleHighlight (cm) {
-		//clearTimeout(globalState.timeout);
-		globalState.timeout = setTimeout(function () { highlightMatchesInAllRelevantCells(cm); }, 10);
+
+		highlightMatchesInAllRelevantCells(cm);
 	}
 
 	/**
@@ -72,8 +91,14 @@ define(function (require, exports, module) {
 	 */
 	function highlightMatchesInAllRelevantCells (cm) {
 		get_relevant_cells().forEach(function (cell, idx, array) {
-					cell.code_mirror.setOption('mode', 'text/x-stan');
-				});
+		    cell.code_mirror.setOption('mode', 'text/x-stan');
+		    cell.code_mirror.setOption('theme', "stan");
+		    cell.code_mirror.setOption('firstLineNumber',0);
+		    cell.code_mirror.setOption('lineNumbers',true);
+            cell.code_mirror.setOption('indentUnit',2);
+            cell.code_mirror.setOption('smartIndent',true);
+
+		});
 
     }
 
@@ -90,11 +115,39 @@ define(function (require, exports, module) {
 	}
 
 	function update_options () {
+		get_relevant_cells().forEach(function (cell, idx, array) {
+					cell.code_mirror.setOption('mode', 'text/x-stan');
+                    cell.code_mirror.setOption('theme', "stan");
+					cell.code_mirror.setOption('firstLineNumber',0);
+                    cell.code_mirror.setOption('lineNumbers',true);
+                    cell.code_mirror.setOption('indentUnit',2);
+                    cell.code_mirror.setOption('smartIndent',true);
+				});
 
     }
 
+    function load_css(theme) {
+        // Create a link element to attach the styles
+        var link = document.createElement("link");
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        link.href = require.toUrl(themes[theme]);
+        link.id = theme + "-css";
+        document.getElementsByTagName("head")[0].appendChild(link);
+    }
+
+    function load_font(href) {
+      // Create a link element to attach the font
+      var link = document.createElement("link");
+      link.type = "text/css";
+      link.rel = "stylesheet";
+      link.href = href;
+      document.getElementsByTagName("head")[0].appendChild(link);
+    }
+
+
 	function load_extension () {
-		console.log("I have been loaded..")
+		console.log("stan_code_helper loaded..")
 		Jupyter.notebook.config.loaded
         .then(update_options, function on_error (reason) {
             console.warn('[stan]', 'error loading config:', reason);
@@ -104,13 +157,56 @@ define(function (require, exports, module) {
             var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
                 if ( cell instanceof CodeCell) {
                     cell.code_mirror.setOption('syntaxhighlight', true);
+                    if (cell.get_text().match("^%%stan")) {
+                        load_css("stan")
+                        cell.code_mirror.setOption('mode', 'text/x-stan');
+                    }
+
                 }
             });
         })
         .catch(function on_error (reason) {
             console.warn('[stan]', 'error:', reason);
         });
+		Jupyter.notebook.events.on('create.Cell', function(evt, data) {
+                // data.cell is the cell object
+                //notebook_cell = data.cell;
+                console.log('EXTENSION: creating a cell');
+                var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
+                if ( cell instanceof CodeCell) {
+                    cell.code_mirror.setOption('syntaxhighlight', true);
+                    load_css("stan")
+                }
+            });
+        });
 
+		Jupyter.notebook.events.on('execute.CodeCell', function(evt, data) {
+                // data.cell is the cell object
+                //notebook_cell = data.cell;
+                console.log('EXTENSION: executing a cell');
+                var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
+                if ( cell instanceof CodeCell) {
+                    cell.code_mirror.setOption('syntaxhighlight', true);
+                    if (cell.get_text().match("^%%stan")) {
+                        cell.code_mirror.setOption('mode', 'text/x-stan');
+                    }
+                }
+            });
+        });
+
+		Jupyter.notebook.events.on('select.Cell', function(evt, data) {
+                // data.cell is the cell object
+                //notebook_cell = data.cell;
+                console.log('EXTENSION: selecting a cell');
+                var cells = Jupyter.notebook.get_cells().forEach(function (cell) {
+                if ( cell instanceof CodeCell ) {
+                    cell.code_mirror.setOption('syntaxhighlight', true);
+                    if (cell.get_text().match("^%%stan")) {
+                        cell.code_mirror.setOption('mode', 'text/x-stan');
+                    }
+                }
+            });
+        });
 
 	}
 

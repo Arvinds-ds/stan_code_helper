@@ -370,7 +370,7 @@
       "multi_gp_cholesky multi_student_t gaussian_dlm_obs dirichlet lkj_corr " +
       "lkj_corr_cholesky wishart inv_wishart"),
 
-    builtin: words("Phi Phi_approx abs acos acosh append_col append_row asin asinh atan atan2 atanh bernoulli " +
+    builtin: words(" lower upper Phi Phi_approx abs acos acosh append_col append_row asin asinh atan atan2 atanh bernoulli " +
       "bernoulli_cdf bernoulli_lccdf bernoulli_lcdf bernoulli_logit bernoulli_logit_lpmf bernoulli_logit_rng " +
       "bernoulli_lpmf bernoulli_rng bessel_first_kind bessel_second_kind beta beta_binomial beta_binomial_cdf " +
       "beta_binomial_lccdf beta_binomial_lcdf beta_binomial_lpmf beta_binomial_rng beta_cdf beta_lccdf beta_lcdf " +
