@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='stan_code_helper',
-    version='0.0.1',
+    version='0.0.2',
     description=(
         'Jupyter notebook extension that enables syntax highlighting of %%stan code cells'
     ),
